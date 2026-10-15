@@ -37,17 +37,17 @@ class ChangeDetection:
                             vis[rr][cc]=True
                             labels[rr,cc]=ct
                             st.append([rr,cc])
-                    for x, y in region:
-                        for k in range(4):
-                            rr = x + l[k]
-                            cc = y + r[k]      
-                            
-                            if not (0 <= rr < n and 0 <= cc < m):
-                                boundary[x, y] = 255
-                                break 
-                            if mask[rr, cc] == 0:
-                                boundary[x, y] = 255
-                                break     
+                for x, y in region:
+                    for k in range(4):
+                        rr = x + l[k]
+                        cc = y + r[k]      
+                        
+                        if not (0 <= rr < n and 0 <= cc < m):
+                            boundary[x, y] = 255
+                            break 
+                        if mask[rr, cc] == 0:
+                            boundary[x, y] = 255
+                            break     
         
         print("Region labels:")
         print(labels)
@@ -138,37 +138,33 @@ class ChangeDetection:
         print(img1.shape)
         print(img2.shape)
         new_img2=self.make_brighter(img2)
-        if img2.shape == img2.shape:
-            img1=img2
-            img2=new_img2
-            gray_before=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
-            gray_after=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
-            before16 = gray_before.astype(np.int16)
-            after16 = gray_after.astype(np.int16)
-            
-            signed_diff = after16 - before16
-            brightness_shift = np.median(signed_diff)
-            compensated = np.abs(signed_diff - brightness_shift)
-            compensated = np.clip(compensated, 0, 255).astype(np.uint8)
-
-            _, mask = cv2.threshold(
-                compensated, 25, 255, cv2.THRESH_BINARY
-            )
-            # diff = cv2.absdiff(gray_before, gray_after)
-            # mid = np.median(diff)
-            # diff_abs = diff-mid
-            # _, mask = cv2.threshold(
-            #     diff_abs, 25, 255, cv2.THRESH_BINARY
-            # )
-            print("Estimated brightness shift:", brightness_shift)
-            print("Changed pixels:", np.count_nonzero(mask))
-            print("Mask dtype:", mask.dtype)
-            print("Original mean:", img2.mean())
-            print("Brighter mean:", new_img2.mean())
-            print("Mean absolute difference:",cv2.absdiff(img2, new_img2).mean())
-            return img1,img2,mask
-        else:
-            print("Mismatch of size!")
+        gray_before=cv2.cvtColor(img1,cv2.COLOR_BGR2GRAY)
+        gray_after=cv2.cvtColor(img2,cv2.COLOR_BGR2GRAY)
+        before16 = gray_before.astype(np.int16)
+        after16 = gray_after.astype(np.int16)
+        
+        signed_diff = after16 - before16
+        brightness_shift = np.median(signed_diff)
+        compensated = np.abs(signed_diff - brightness_shift)
+        compensated = np.clip(compensated, 0, 255).astype(np.uint8)
+        _, mask = cv2.threshold(
+            compensated, 25, 255, cv2.THRESH_BINARY
+        )
+        # diff = cv2.absdiff(gray_before, gray_after)
+        # mid = np.median(diff)
+        # diff_abs = diff-mid
+        # _, mask = cv2.threshold(
+        #     diff_abs, 25, 255, cv2.THRESH_BINARY
+        # )
+        print("Estimated brightness shift:", brightness_shift)
+        print("Changed pixels:", np.count_nonzero(mask))
+        print("Mask dtype:", mask.dtype)
+        print("Original mean:", img2.mean())
+        print("Brighter mean:", new_img2.mean())
+        print("Mean absolute difference:",cv2.absdiff(img2, new_img2).mean())
+        
+        
+        return img1,img2,mask
                                 
 def main():
     change=ChangeDetection()
